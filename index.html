@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pour toi, princesse ❤️</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --black: #07070a;
+    --red: #e3202f;
+    --red-glow: rgba(227, 32, 47, .55);
+    --white: #f6f4f2;
+    --grey: #b9b6b3;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: "Poppins", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  /* Image de fond */
+  .bg {
+    position: fixed; inset: 0;
+    background: url("assets/bg.jpg") center 20% / cover no-repeat;
+    transform: scale(1.04);
+  }
+  .bg::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, rgba(7,7,10,.35) 0%, rgba(7,7,10,.8) 100%),
+      linear-gradient(180deg, rgba(7,7,10,.55), rgba(7,7,10,.35) 40%, rgba(7,7,10,.7));
+  }
+
+  /* Écran d'entrée */
+  #intro {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; text-align: center; padding: 24px;
+    background: rgba(7, 7, 10, .55);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: opacity .8s ease, visibility .8s ease;
+  }
+  #intro.hide { opacity: 0; visibility: hidden; }
+  #intro h1 {
+    font-family: "Permanent Marker", "Brush Script MT", Impact, cursive;
+    font-size: clamp(2.4rem, 11vw, 4.5rem);
+    margin: 0; color: var(--red);
+    text-shadow: 0 0 24px var(--red-glow), 3px 3px 0 #000;
+    transform: rotate(-3deg);
+  }
+  #intro p { margin: 0; color: var(--grey); max-width: 320px; }
+  .enter {
+    font: inherit; font-weight: 600; font-size: 1.1rem;
+    border: 2px solid var(--red); background: var(--red); color: #fff;
+    padding: 14px 34px; min-height: 52px; border-radius: 999px; cursor: pointer;
+    box-shadow: 0 0 28px var(--red-glow);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .enter:focus-visible, .sound:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+  @keyframes pulse { 50% { transform: scale(1.05); box-shadow: 0 0 40px var(--red-glow); } }
+
+  /* Texte qui défile du bas vers le haut */
+  .stage {
+    position: fixed; inset: 0; z-index: 5; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 80%, transparent 100%);
+  }
+  .roll {
+    position: absolute; left: 0; right: 0; top: 0;
+    max-width: 640px; margin: 0 auto; padding: 0 26px;
+    text-align: center;
+    transform: translateY(100vh);
+    animation: roll 125s linear 1 forwards;
+    animation-play-state: paused;
+  }
+  .running .roll { animation-play-state: running; }
+  .running.held .roll { animation-play-state: paused; }
+  @keyframes roll { from { transform: translateY(100vh); } to { transform: translateY(-100%); } }
+
+  .roll .title {
+    font-family: "Permanent Marker", "Brush Script MT", Impact, cursive;
+    font-size: clamp(2rem, 8vw, 3.2rem); color: var(--red);
+    text-shadow: 0 0 22px var(--red-glow), 3px 3px 0 #000;
+    margin: 0 0 56px; transform: rotate(-2deg);
+  }
+  .roll p {
+    font-size: clamp(1.15rem, 4.2vw, 1.5rem); line-height: 1.55; font-weight: 500;
+    margin: 0 0 44px; text-shadow: 0 2px 12px rgba(0,0,0,.9);
+  }
+  .roll p.accent { color: var(--red); font-weight: 600; text-shadow: 0 0 18px var(--red-glow), 0 2px 10px #000; }
+  .roll .sign {
+    font-family: "Permanent Marker", "Brush Script MT", Impact, cursive;
+    font-size: clamp(1.8rem, 7vw, 2.6rem); color: var(--white);
+    margin: 20px 0 120px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .roll { animation: none; transform: none; padding-top: 30vh; padding-bottom: 30vh; }
+    .stage { overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
+    .enter { animation: none; }
+  }
+
+  /* Bouton son */
+  .sound {
+    position: fixed; z-index: 30;
+    top: calc(env(safe-area-inset-top, 0px) + 12px); right: 12px;
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 2px solid var(--red); background: rgba(7,7,10,.65); color: var(--white);
+    font-size: 1.2rem; cursor: pointer; display: none;
+  }
+  .running ~ .sound, body.running .sound { display: block; }
+  .hint {
+    position: fixed; z-index: 6; left: 0; right: 0;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    text-align: center; font-size: .75rem; color: var(--grey); opacity: 0;
+    transition: opacity .6s; pointer-events: none;
+  }
+  .running .hint { opacity: .7; }
+  .roll .sign { white-space: pre-line; line-height: 1.4; }
+  .end {
+    position: fixed; inset: 0; z-index: 10; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; text-align: center; padding: 24px;
+  }
+  .end p {
+    margin: 0; font-family: "Permanent Marker", "Brush Script MT", Impact, cursive;
+    font-size: clamp(2rem, 8vw, 3.2rem); color: var(--red);
+    text-shadow: 0 0 22px var(--red-glow), 3px 3px 0 #000; transform: rotate(-2deg);
+  }
+  .done .end { display: flex; animation: fadein 1.5s ease; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+  <div class="bg" role="img" aria-label="Deux personnes en sweats noirs et rouges devant un mur graffiti"></div>
+
+  <div class="stage" id="stage" aria-live="off">
+    <div class="roll" id="roll"></div>
+  </div>
+  <div class="hint">Maintiens ton doigt pour mettre en pause</div>
+
+  <div id="intro">
+    <h1>Pour toi</h1>
+    <p>Un petit message sincère, de loin mais du fond du cœur.</p>
+    <button class="enter" id="enter" type="button">Entrer 🎵</button>
+  </div>
+
+  <button class="sound" id="sound" type="button" aria-label="Couper ou remettre la musique">🔊</button>
+  <div class="end" id="end">
+    <p>Pour toi, princesse 💌</p>
+    <button class="enter" id="replay" type="button">Revoir le message</button>
+  </div>
+  <audio id="music" preload="auto"></audio>
+
+<script>
+  // ✏️ À personnaliser : le texte qui défile
+  // "title" = grand titre, "p" = paragraphe, "accent" = phrase en rouge, "sign" = signature
+  const LINES = [
+    ["title",  "À toi, ma princesse"],
+    ["p",      "Il y a des amitiés qui n'ont pas besoin de proximité pour exister."],
+    ["p",      "La nôtre en fait partie."],
+    ["p",      "Des kilomètres nous séparent, des frontières, des fuseaux horaires…"],
+    ["accent", "Et pourtant, tu es là. Toujours."],
+    ["p",      "Merci d'être vraie avec moi, même quand ce n'est pas facile à entendre."],
+    ["p",      "Merci de m'écouter sans jamais me juger."],
+    ["p",      "Merci de me faire rire, même à travers un écran."],
+    ["accent", "Une vraie amitié ne se mesure pas en distance, mais en présence dans le cœur."],
+    ["p",      "Quoi qu'il arrive, je serai là pour toi, comme tu l'as été pour moi."],
+    ["p",      "Un jour, on se retrouvera. D'ici là, chaque message compte."],
+    ["p",      "Princesse, même quand la distance pèse, sache que tu n'es jamais seule."],
+    ["p",      "Chaque fois que tu doutes, souviens-toi que quelqu'un, quelque part, croit en toi plus que tu ne le crois toi-même."],
+    ["p",      "Tu mérites tout le bonheur du monde, et je souhaite de tout cœur que la vie te le rende."],
+    ["p",      "Si un jour tout te semble trop lourd, pense à moi : je ne suis qu'un message de toi."],
+    ["accent", "Tu es l'une des plus belles choses qui me soient arrivées."],
+    ["accent", "Merci d'exister dans ma vie, princesse."],
+    ["sign",   "Avec toute ma sincérité,\nJacques ❤️"]
+  ];
+
+  // 🎵 La musique est intégrée ici (vide tant que le fichier n'est pas ajouté)
+  const MUSIC_SRC = "assets/music.mp3";
+
+  const $ = (id) => document.getElementById(id);
+  const roll = $("roll"), music = $("music");
+
+  LINES.forEach(([type, text]) => {
+    const el = document.createElement(type === "title" ? "h2" : type === "sign" ? "div" : "p");
+    el.textContent = text;
+    el.className = type === "title" ? "title" : type === "sign" ? "sign" : (type === "accent" ? "accent" : "");
+    roll.appendChild(el);
+  });
+
+  if (MUSIC_SRC) music.src = MUSIC_SRC;
+  music.volume = 0.7;
+
+  $("enter").addEventListener("click", () => {
+    $("intro").classList.add("hide");
+    document.body.classList.add("running");
+    if (MUSIC_SRC) { music.play().catch(() => {}); }
+    else { $("sound").style.display = "none"; }
+  });
+
+  $("sound").addEventListener("click", () => {
+    if (music.paused) { music.play().catch(() => {}); $("sound").textContent = "🔊"; }
+    else { music.pause(); $("sound").textContent = "🔇"; }
+  });
+
+  // Fin du texte : la musique s'estompe puis s'arrête
+  function finish() {
+    document.body.classList.add("done");
+    $("sound").textContent = "🔇";
+    if (!MUSIC_SRC) return;
+    const iv = setInterval(() => {
+      if (music.volume > 0.06) { music.volume = Math.max(0, music.volume - 0.05); }
+      else { clearInterval(iv); music.pause(); music.volume = 0.7; }
+    }, 200);
+  }
+  roll.addEventListener("animationend", finish);
+  // Cas du mode "réduire les animations" : fin quand on arrive en bas
+  stage.addEventListener("scroll", () => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches &&
+        stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 4) finish();
+  });
+  $("replay").addEventListener("click", () => {
+    document.body.classList.remove("done");
+    roll.style.animation = "none"; void roll.offsetWidth; roll.style.animation = "";
+    if (MUSIC_SRC) { music.currentTime = 0; music.volume = 0.7; music.play().catch(() => {}); }
+    $("sound").textContent = "🔊";
+  });
+
+  // Pause du défilement en maintenant le doigt / la souris
+  const stage = $("stage");
+  const hold = (on) => document.body.classList.toggle("held", on);
+  stage.addEventListener("pointerdown", () => hold(true));
+  ["pointerup", "pointercancel", "pointerleave"].forEach(e => stage.addEventListener(e, () => hold(false)));
+</script>
+</body>
+</html>
