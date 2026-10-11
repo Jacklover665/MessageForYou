@@ -190,6 +190,7 @@
 
   const $ = (id) => document.getElementById(id);
   const roll = $("roll"), music = $("music");
+  let fadeTimer = null;
 
   LINES.forEach(([type, text]) => {
     const el = document.createElement(type === "title" ? "h2" : type === "sign" ? "div" : "p");
@@ -218,9 +219,10 @@
     document.body.classList.add("done");
     $("sound").textContent = "🔇";
     if (!MUSIC_SRC) return;
-    const iv = setInterval(() => {
+    clearInterval(fadeTimer);
+    fadeTimer = setInterval(() => {
       if (music.volume > 0.06) { music.volume = Math.max(0, music.volume - 0.05); }
-      else { clearInterval(iv); music.pause(); music.volume = 0.7; }
+      else { clearInterval(fadeTimer); music.pause(); music.volume = 0.7; }
     }, 200);
   }
   roll.addEventListener("animationend", finish);
@@ -230,10 +232,20 @@
         stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 4) finish();
   });
   $("replay").addEventListener("click", () => {
-    document.body.classList.remove("done");
-    roll.style.animation = "none"; void roll.offsetWidth; roll.style.animation = "";
-    if (MUSIC_SRC) { music.currentTime = 0; music.volume = 0.7; music.play().catch(() => {}); }
+    // 1) la musique repart tout de suite (le clic autorise le son)
+    clearInterval(fadeTimer);
+    if (MUSIC_SRC) {
+      music.pause();
+      music.currentTime = 0;
+      music.volume = 0.7;
+      music.play().catch(() => {});
+    }
     $("sound").textContent = "🔊";
+    // 2) le texte repart du bas
+    document.body.classList.remove("done", "held");
+    stage.scrollTop = 0;
+    roll.style.animation = "none";
+    requestAnimationFrame(() => requestAnimationFrame(() => { roll.style.animation = ""; }));
   });
 
   // Pause du défilement en maintenant le doigt / la souris
