@@ -26,15 +26,18 @@
 
     .bg {
       position: fixed; inset: 0;
-      background: radial-gradient(circle at center, rgba(227, 32, 47, 0.18), transparent 40%),
-                  linear-gradient(180deg, rgba(7,7,10,0.25), rgba(7,7,10,0.75)),
-                  #07070a;
+      background-image: url("./font.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(2px) brightness(0.8) saturate(1.15);
+      transform: scale(1.06);
     }
 
     .bg::after {
       content: "";
       position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(7,7,10,0.1), rgba(7,7,10,0.7));
+      background: linear-gradient(180deg, rgba(7,7,10,0.18), rgba(7,7,10,0.72));
     }
 
     .stage {
@@ -257,18 +260,16 @@
       roll.appendChild(el);
     });
 
-    const MUSIC_SRC = "";
-    if (MUSIC_SRC) {
-      music.src = MUSIC_SRC;
-      music.volume = 0.7;
-    }
+    const MUSIC_SRC = "./a-thousand-years.mp3";
+    music.src = MUSIC_SRC;
+    music.volume = 0.7;
+    music.load();
 
     $("enter").addEventListener("click", () => {
       $("intro").classList.add("hide");
       document.body.classList.add("running");
-      if (MUSIC_SRC) {
-        music.play().catch(() => {});
-      }
+      music.currentTime = 0;
+      music.play().catch(() => {});
     });
 
     $("sound").addEventListener("click", () => {
@@ -297,6 +298,7 @@
     }
 
     roll.addEventListener("animationend", finish);
+    music.addEventListener("ended", finish);
 
     stage.addEventListener("scroll", () => {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches &&

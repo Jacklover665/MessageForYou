@@ -198,14 +198,15 @@
     roll.appendChild(el);
   });
 
-  if (MUSIC_SRC) music.src = MUSIC_SRC;
+  music.src = MUSIC_SRC;
   music.volume = 0.7;
+  music.load();
 
   $("enter").addEventListener("click", () => {
     $("intro").classList.add("hide");
     document.body.classList.add("running");
-    if (MUSIC_SRC) { music.play().catch(() => {}); }
-    else { $("sound").style.display = "none"; }
+    music.currentTime = 0;
+    music.play().catch(() => {});
   });
 
   $("sound").addEventListener("click", () => {
@@ -224,6 +225,7 @@
     }, 200);
   }
   roll.addEventListener("animationend", finish);
+  music.addEventListener("ended", finish);
   // Cas du mode "réduire les animations" : fin quand on arrive en bas
   stage.addEventListener("scroll", () => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches &&
